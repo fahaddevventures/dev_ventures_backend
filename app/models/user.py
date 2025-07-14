@@ -1,9 +1,9 @@
 from app.extensions import db
 from datetime import datetime, timezone
 from app.enums import UserRoleEnum
+from flask_login import UserMixin
 
-
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -11,9 +11,9 @@ class User(db.Model):
     last_name = db.Column(db.String(100), nullable=False)
 
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
 
-    role = db.Column(db.Enum(UserRoleEnum), nullable=False)
+    role = db.Column(db.Enum(UserRoleEnum), default=UserRoleEnum.employee, nullable=False)
 
     profile_image_url = db.Column(db.String(255), default='None', nullable=False)
     contact = db.Column(db.String(20), nullable=False)

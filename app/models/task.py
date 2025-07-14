@@ -24,7 +24,7 @@ class Task(db.Model):
 
     # Relationships
     project = db.relationship('Project', backref=db.backref('tasks', cascade='all, delete-orphan'))
-    assignee = db.relationship('User', backref=db.backref('assigned_tasks', cascade='all, delete-orphan'))
+    # assignee = db.relationship('User', backref=db.backref('assigned_tasks', cascade='all, delete-orphan'))
     creator = db.relationship('User', foreign_keys=[created_by], backref=db.backref('created_tasks', cascade='all, delete-orphan'))
 
     def __repr__(self):
