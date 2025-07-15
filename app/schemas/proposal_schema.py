@@ -19,6 +19,7 @@ class ProposalSchema(SQLAlchemySchema):
 
     # Proposal & Submission Info
     cover_letter = auto_field()
+    proposal = auto_field()
     feasibility_score = auto_field()
     feasibility_reason = auto_field()
     status = EnumField(ProposalStatusEnum, by_value=True, required=False)

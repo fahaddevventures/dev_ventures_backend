@@ -63,10 +63,11 @@ def generate_proposal_from_job(job_id):
             print("Error:", e)
 
         # 4. Create proposal record
-        proposal = Proposal(
+        proposal_data = Proposal(
             job_id=job.id,
             generated_by=current_user.id,
             cover_letter=parsed_data["cover_letter"],
+            proposal=parsed_data["proposal"],
             feasibility_score=parsed_data["feasibility_score"],
             feasibility_reason=parsed_data["feasibility_reason"],
             connects_required=job.connect_required,
@@ -80,12 +81,12 @@ def generate_proposal_from_job(job_id):
             status=ProposalStatusEnum.draft
         )
 
-        db.session.add(proposal)
+        db.session.add(proposal_data)
         db.session.commit()
 
         return jsonify({
             "message": "Proposal generated successfully using Gemini AI.",
-            "proposal": proposal_schema.dump(proposal)
+            "proposal": proposal_schema.dump(proposal_data)
         }), 201
 
     except Exception as e:

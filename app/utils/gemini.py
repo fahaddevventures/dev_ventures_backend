@@ -55,6 +55,7 @@ def assess_proposal_from_job(job_data: dict) -> dict:
     Given this job data, return a JSON with the following fields:
 
     - "cover_letter": A professional Upwork cover letter in natural language.
+    - "proposal": A professional Upwork cproposal in natural language.
     - "feasibility_score": A float between 0 and 100 (how feasible this job is to win).
     - "feasibility_reason": 1-2 sentence reason explaining the score.
     - "summary": A 1-2 sentence summary of the job.
@@ -81,6 +82,7 @@ def assess_proposal_from_job(job_data: dict) -> dict:
         # Ensure required fields exist and default if needed
         return {
             "cover_letter": result["cover_letter"],
+            "proposal": result["proposal"],
             "feasibility_score": float(result["feasibility_score"]),
             "feasibility_reason": result["feasibility_reason"],
             "summary": result["summary"],

@@ -14,6 +14,7 @@ class Proposal(db.Model):
 
     # Proposal & Submission Info
     cover_letter = db.Column(db.Text, nullable=True)  # AI-generated cover letter to be sent
+    proposal = db.Column(db.Text, nullable=False)  # Full raw job proposal text
     feasibility_score = db.Column(db.Float, nullable=True)  # AI-generated score (e.g. 85.0 for good opportunity)
     feasibility_reason = db.Column(db.Text, nullable=True)  # Why AI marked this job feasible or not
     status = db.Column(db.Enum(ProposalStatusEnum), default=ProposalStatusEnum.draft, nullable=False)  # Proposal state
