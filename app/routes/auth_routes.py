@@ -92,11 +92,14 @@ def logout():
     return jsonify({"message": "Logged out successfully"}), 200
 
 
-@auth_bp.route('/profile', methods=['GET'])
+@auth_bp.route('/current-user', methods=['GET'])
 @login_required
 def get_profile():
     return jsonify({
         "id": current_user.id,
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name,
         "email": current_user.email,
+        "profile_image_url": current_user.profile_image_url,
         "role": current_user.role.value
     })

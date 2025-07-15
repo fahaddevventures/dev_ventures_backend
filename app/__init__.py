@@ -4,6 +4,7 @@ from app.extensions import db, migrate
 from app.routes.auth_routes import auth_bp
 from app.routes.user_routes import user_bp
 from app.routes.scrap_routes import scraper_bp
+from app.routes.workspace_routes import workspace_bp
 from flask_login import LoginManager
 from flask import jsonify
 
@@ -47,6 +48,7 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(user_bp, url_prefix='/api/users')
     app.register_blueprint(scraper_bp, url_prefix='/api/scrape')
+    app.register_blueprint(workspace_bp, url_prefix='/api/workspaces')
 
 
     @login_manager.user_loader
