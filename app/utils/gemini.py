@@ -4,7 +4,7 @@ import json
 import re
 
 # The client gets the API key from the environment variable `GEMINI_API_KEY`.
-client = genai.Client(api_key="AIzaSyAcWZnWArOVBvBNPNSbJngJ1Wj5Eeq6phw")
+client = genai.Client(api_key="")
 
 def assess_job_feasibility(job_data: dict) -> str:
     # Remove `feasibility_status` if present
