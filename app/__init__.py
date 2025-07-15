@@ -8,6 +8,7 @@ from app.routes.workspace_routes import workspace_bp
 from app.routes.upwork_jobs_routes import upwork_job_bp
 from app.routes.proposal_routes import proposal_bp
 from app.routes.project_routes import project_bp
+from app.routes.task_routes import task_bp
 from flask_login import LoginManager
 from flask import jsonify
 
@@ -55,6 +56,7 @@ def create_app():
     app.register_blueprint(upwork_job_bp, url_prefix='/api/upwork_jobs')
     app.register_blueprint(proposal_bp, url_prefix='/api/proposals')
     app.register_blueprint(project_bp, url_prefix='/api/projects')
+    app.register_blueprint(task_bp, url_prefix='/api/tasks')
 
     @login_manager.user_loader
     def load_user(user_id):

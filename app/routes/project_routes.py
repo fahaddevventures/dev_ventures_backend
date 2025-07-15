@@ -231,3 +231,50 @@ def list_project_members(project_id):
 
     except Exception as e:
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+    
+
+@project_bp.route('/workspace/<int:workspace_id>', methods=['GET'])
+@login_required
+def get_projects_by_workspace(workspace_id):
+    try:
+        projects = Project.query.filter_by(workspace_id=workspace_id).all()
+
+        return jsonify({
+            "workspace_id": workspace_id,
+            "total": len(projects),
+            "projects": project_list_schema.dump(projects)
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+    
+@project_bp.route('/update/<int:project_id>', methods=['PUT'])
+@login_required
+@role_required(UserRoleEnum.admin, UserRoleEnum.team_lead)
+def update_project(project_id):
+    project = Project.query.get(project_id)
+    if not project:
+        return jsonify({"error": f"Project with ID {project_id} not found."}), 404
+
+    data = request.json or {}
+
+    # Validate input
+    errors = project_schema.validate(data, partial=True)
+    if errors:
+        return jsonify({"error": "Validation failed", "details": errors}), 400
+
+    try:
+        # Update fields
+        for key, value in data.items():
+            setattr(project, key, value)
+
+        db.session.commit()
+
+        return jsonify({
+            "message": "Project updated successfully.",
+            "project": project_schema.dump(project)
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
