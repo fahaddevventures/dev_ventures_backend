@@ -16,7 +16,7 @@ class UpworkJob(db.Model):
     category = db.Column(db.String(100), nullable=True)
 
     client_country = db.Column(db.String(100), nullable=True)
-    client_payment_verified = db.Column(db.Boolean, default=False)
+    client_payment_verified = db.Column(db.Boolean, default=True)
     client_total_spent = db.Column(db.Numeric(10, 2), nullable=True)
     client_jobs_posted = db.Column(db.Integer, nullable=True)
     client_hire_rate = db.Column(db.String(10), nullable=True)
