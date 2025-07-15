@@ -19,7 +19,7 @@ class Project(db.Model):
 
     start_date = db.Column(db.DateTime, nullable=True)
     end_date = db.Column(db.DateTime, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     # Relationships
     job = db.relationship('UpworkJob', backref=db.backref('projects', cascade='all, delete-orphan'))
