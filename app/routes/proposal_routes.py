@@ -4,7 +4,7 @@ from app.extensions import db
 from app.models.proposal import Proposal
 from app.models.upwork_job import UpworkJob
 from app.schemas.proposal_schema import ProposalSchema
-from app.utils.gemini import assess_proposal_from_job
+from app.utils.gemini import assess_proposal_from_job, extract_json_from_text
 from app.enums import ProposalStatusEnum
 
 proposal_bp = Blueprint('proposal', __name__)
@@ -53,21 +53,29 @@ def generate_proposal_from_job(job_id):
 
         # 3. AI processing
         ai_result = assess_proposal_from_job(job_data)
+        # print(ai_result)
+
+        try:
+            # parsed_data = extract_json_from_text(ai_result)
+            parsed_data = ai_result
+            print(parsed_data)
+        except ValueError as e:
+            print("Error:", e)
 
         # 4. Create proposal record
         proposal = Proposal(
             job_id=job.id,
             generated_by=current_user.id,
-            cover_letter=ai_result.get("cover_letter"),
-            feasibility_score=ai_result.get("feasibility_score"),
-            feasibility_reason=ai_result.get("feasibility_reason"),
+            cover_letter=parsed_data["cover_letter"],
+            feasibility_score=parsed_data["feasibility_score"],
+            feasibility_reason=parsed_data["feasibility_reason"],
             connects_required=job.connect_required,
             expected_cost=job.expected_cost,
             expected_earnings=job.expected_earnings,
             job_description=job.description,
-            summary=ai_result.get("summary"),
-            project_duration=ai_result.get("project_duration"),
-            overall_score=ai_result.get("overall_score"),
+            summary=parsed_data["summary"],
+            project_duration=parsed_data["project_duration"],
+            overall_score=parsed_data["overall_score"],
             tags=job.skills,
             status=ProposalStatusEnum.draft
         )

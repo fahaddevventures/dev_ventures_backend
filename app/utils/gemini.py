@@ -72,19 +72,26 @@ def assess_proposal_from_job(job_data: dict) -> dict:
         output = response.text.strip()
 
         # Optional logging
-        print("[Gemini Raw Output]", output)
-
+        # print("[Gemini Raw Output]", output)
+        result = extract_json_from_text(output)
+        # print(parsed_data)
         # Parse AI response
-        result = json.loads(output)
-
+        # result = json.loads(parsed_data)
+        print(result)
         # Ensure required fields exist and default if needed
         return {
-            "cover_letter": result.get("cover_letter", ""),
-            "feasibility_score": float(result.get("feasibility_score", 0)),
-            "feasibility_reason": result.get("feasibility_reason", ""),
-            "summary": result.get("summary", ""),
-            "project_duration": result.get("project_duration", ""),
-            "overall_score": float(result.get("overall_score", 0)),
+            "cover_letter": result["cover_letter"],
+            "feasibility_score": float(result["feasibility_score"]),
+            "feasibility_reason": result["feasibility_reason"],
+            "summary": result["summary"],
+            "project_duration": result["project_duration"],
+            "overall_score": float(result["overall_score"]),
+            # "cover_letter": result.get("cover_letter", ""),
+            # "feasibility_score": float(result.get("feasibility_score", 0)),
+            # "feasibility_reason": result.get("feasibility_reason", ""),
+            # "summary": result.get("summary", ""),
+            # "project_duration": result.get("project_duration", ""),
+            # "overall_score": float(result.get("overall_score", 0)),
         }
 
     except Exception as e:
@@ -153,3 +160,32 @@ Return only the list of 10 jobs as JSON array.
     
     # print(jobs)
     # return job if isinstance(jobs, list) else []
+
+
+
+# def extract_json_from_gemini(raw_text: str):
+#     try:
+#         # Remove Markdown code block if present
+#         clean_text = re.sub(r"^```json|```$", "", raw_text.strip(), flags=re.MULTILINE).strip()
+#         # Parse JSON
+#         parsed = json.loads(clean_text)
+#         return parsed
+#     except json.JSONDecodeError as e:
+#         raise ValueError(f"Failed to parse JSON: {e}")
+
+def extract_json_from_text(text):
+    """
+    Extract the JSON object from a string that may be wrapped in ```json ... ```
+    """
+    match = re.search(r"```json\s*(.*?)\s*```", text, re.DOTALL)
+    if match:
+        json_str = match.group(1).strip()
+    else:
+        # Fallback: try to extract first {...} JSON block
+        match = re.search(r"({.*})", text, re.DOTALL)
+        if match:
+            json_str = match.group(1).strip()
+        else:
+            raise ValueError("No JSON content found in Gemini output.")
+    print(json_str)
+    return json.loads(json_str)
