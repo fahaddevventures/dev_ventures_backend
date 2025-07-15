@@ -6,6 +6,7 @@ from app.routes.user_routes import user_bp
 from app.routes.scrap_routes import scraper_bp
 from app.routes.workspace_routes import workspace_bp
 from app.routes.upwork_jobs_routes import upwork_job_bp
+from app.routes.proposal_routes import proposal_bp
 from flask_login import LoginManager
 from flask import jsonify
 
@@ -51,7 +52,7 @@ def create_app():
     app.register_blueprint(scraper_bp, url_prefix='/api/scrape')
     app.register_blueprint(workspace_bp, url_prefix='/api/workspaces')
     app.register_blueprint(upwork_job_bp, url_prefix='/api/upwork_jobs')
-
+    app.register_blueprint(proposal_bp, url_prefix='/api/proposals')
 
     @login_manager.user_loader
     def load_user(user_id):

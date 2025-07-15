@@ -14,8 +14,8 @@ from marshmallow import ValidationError
 user_schema = UserSchema(session=db.session)
 
 @auth_bp.route('/register', methods=['POST'])
-@login_required
-@role_required(UserRoleEnum.admin, UserRoleEnum.team_lead)
+# @login_required
+# @role_required(UserRoleEnum.admin, UserRoleEnum.team_lead)
 def register():
     data = request.json or {}
 

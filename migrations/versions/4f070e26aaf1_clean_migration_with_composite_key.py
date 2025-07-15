@@ -1,8 +1,8 @@
-"""full schema with all models
+"""Clean migration with composite key
 
-Revision ID: 2f6f9fd7fe4e
-Revises: 8e42ef9d9d56
-Create Date: 2025-07-13 23:34:04.149249
+Revision ID: 4f070e26aaf1
+Revises: 
+Create Date: 2025-07-15 21:46:02.207605
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '2f6f9fd7fe4e'
-down_revision = '8e42ef9d9d56'
+revision = '4f070e26aaf1'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -68,6 +68,20 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
+    op.create_table('users',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('first_name', sa.String(length=100), nullable=False),
+    sa.Column('last_name', sa.String(length=100), nullable=False),
+    sa.Column('email', sa.String(length=120), nullable=False),
+    sa.Column('password', sa.String(length=255), nullable=False),
+    sa.Column('role', sa.Enum('admin', 'team_lead', 'employee', 'salesman', name='userroleenum'), nullable=False),
+    sa.Column('profile_image_url', sa.String(length=255), nullable=False),
+    sa.Column('contact', sa.String(length=20), nullable=False),
+    sa.Column('is_active', sa.Boolean(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email')
+    )
     op.create_table('workspaces',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
@@ -75,12 +89,12 @@ def upgrade():
     sa.Column('invite_code', sa.String(length=50), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('invite_code')
+    sa.UniqueConstraint('invite_code'),
+    sa.UniqueConstraint('name')
     )
     op.create_table('proposals',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('job_id', sa.Integer(), nullable=False),
-    sa.Column('profile_id', sa.Integer(), nullable=False),
     sa.Column('generated_by', sa.Integer(), nullable=False),
     sa.Column('cover_letter', sa.Text(), nullable=True),
     sa.Column('feasibility_score', sa.Float(), nullable=True),
@@ -89,31 +103,14 @@ def upgrade():
     sa.Column('connects_required', sa.Integer(), nullable=True),
     sa.Column('expected_cost', sa.Numeric(precision=10, scale=2), nullable=True),
     sa.Column('expected_earnings', sa.Numeric(precision=10, scale=2), nullable=True),
-    sa.Column('sent_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('job_description', sa.Text(), nullable=True),
     sa.Column('summary', sa.Text(), nullable=True),
-    sa.Column('risks', sa.JSON(), nullable=True),
-    sa.Column('opportunities', sa.JSON(), nullable=True),
-    sa.Column('recommendations', sa.JSON(), nullable=True),
-    sa.Column('key_clauses', sa.JSON(), nullable=True),
-    sa.Column('legal_compliance', sa.Text(), nullable=True),
-    sa.Column('negotiation_points', sa.JSON(), nullable=True),
     sa.Column('project_duration', sa.String(length=100), nullable=True),
     sa.Column('overall_score', sa.Float(), nullable=True),
-    sa.Column('performance_metrics', sa.JSON(), nullable=True),
-    sa.Column('intellectual_property_clauses', sa.Text(), nullable=True),
-    sa.Column('contract_type', sa.Enum('hourly', 'fixed_price', 'unknown', name='contracttypeenum'), nullable=True),
-    sa.Column('user_feedback_rating', sa.Integer(), nullable=True),
-    sa.Column('user_feedback_comments', sa.Text(), nullable=True),
     sa.Column('tags', sa.JSON(), nullable=True),
-    sa.Column('client_score', sa.Float(), nullable=True),
-    sa.Column('job_tags', sa.JSON(), nullable=True),
-    sa.Column('is_follow_up_required', sa.Boolean(), nullable=True),
-    sa.Column('version', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.ForeignKeyConstraint(['generated_by'], ['users.id'], ),
     sa.ForeignKeyConstraint(['job_id'], ['upwork_jobs.id'], ),
-    sa.ForeignKeyConstraint(['profile_id'], ['upwork_profiles.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('user_skills',
@@ -123,6 +120,14 @@ def upgrade():
     sa.ForeignKeyConstraint(['skill_id'], ['skills.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('user_id', 'skill_id')
+    )
+    op.create_table('workspace_members',
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('workspace_id', sa.Integer(), nullable=False),
+    sa.Column('joined_at', sa.DateTime(timezone=True), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['workspace_id'], ['workspaces.id'], ),
+    sa.PrimaryKeyConstraint('user_id', 'workspace_id')
     )
     op.create_table('projects',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -154,14 +159,13 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('project_members',
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('project_id', sa.Integer(), nullable=False),
     sa.Column('role_in_project', sa.String(length=100), nullable=True),
     sa.Column('joined_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('user_id', 'project_id')
     )
     op.create_table('tasks',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -213,9 +217,11 @@ def downgrade():
     op.drop_table('project_members')
     op.drop_table('project_attachments')
     op.drop_table('projects')
+    op.drop_table('workspace_members')
     op.drop_table('user_skills')
     op.drop_table('proposals')
     op.drop_table('workspaces')
+    op.drop_table('users')
     op.drop_table('upwork_profiles')
     op.drop_table('upwork_jobs')
     op.drop_table('skills')
